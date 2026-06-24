@@ -4,103 +4,116 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Apps CyC — Vitrina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0e1116; --bg2:#151a22; --card:#1b2230; --line:#2a3344;
-    --txt:#eef2f7; --mut:#9fb0c3; --acc:#2ecc71; --acc2:#27ae60; --gold:#c49b66;
+    --bg:#f6f1ea; --panel:#ffffff; --line:#e8ded0; --field:#faf6f0;
+    --txt:#2c2218; --mut:#8c7d6c; --acc:#b06a43; --acc2:#985737;
+    --hero1:#3a2a22; --hero2:#6e4430; --gold:#c8a06a;
+    --serif:'Playfair Display',Georgia,serif; --sans:'Inter',system-ui,Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:
-    radial-gradient(1200px 600px at 50% -10%, #18324a 0%, var(--bg) 55%);
-    color:var(--txt);min-height:100vh}
+  body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh}
   a{color:var(--acc);text-decoration:none}
-  .wrap{max-width:1100px;margin:0 auto;padding:0 1rem 4rem}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 1.1rem 4rem}
+  .serif{font-family:var(--serif)}
 
-  /* HEADER */
-  header.top{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 0}
-  .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.05rem}
-  .brand .dot{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--acc),#1f8f4e);
-    display:flex;align-items:center;justify-content:center;font-size:1.1rem}
-  .btn{cursor:pointer;border:0;border-radius:10px;padding:.55rem .9rem;font-weight:700;font-size:.85rem;transition:.15s}
-  .btn-ghost{background:#ffffff14;color:var(--txt);border:1px solid var(--line)}
-  .btn-ghost:hover{background:#ffffff22}
-  .btn-acc{background:var(--acc);color:#04210f}
+  /* TOP BAR */
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:1rem 0}
+  .brand{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:1.05rem;font-family:var(--serif)}
+  .brand .dot{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));
+    display:flex;align-items:center;justify-content:center;font-size:1.15rem;color:#fff}
+  .btn{cursor:pointer;border:0;border-radius:10px;padding:.55rem .95rem;font-weight:700;font-size:.85rem;transition:.15s;font-family:var(--sans)}
+  .btn-ghost{background:#fff;color:var(--txt);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#fbf7f1;border-color:#d8cbb8}
+  .btn-acc{background:var(--acc);color:#fff}
   .btn-acc:hover{background:var(--acc2)}
 
   /* HERO */
-  .hero{text-align:center;padding:1.5rem 0 2.2rem}
-  .hero h1{font-size:2rem;line-height:1.15;font-weight:800;letter-spacing:-.02em}
-  .hero p{color:var(--mut);margin-top:.7rem;max-width:640px;margin-left:auto;margin-right:auto;font-size:1rem}
-  .pill{display:inline-block;background:#ffffff12;border:1px solid var(--line);color:var(--gold);
-    font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:.35rem .8rem;border-radius:999px;margin-bottom:1rem}
+  .hero{position:relative;margin:.3rem 0 2.4rem;border-radius:22px;overflow:hidden;
+    background:linear-gradient(135deg,var(--hero1),var(--hero2));color:#fdf6ee;text-align:center;padding:3.2rem 1.4rem 3.4rem}
+  .hero::before{content:"";position:absolute;inset:0;opacity:.10;background-image:
+    radial-gradient(circle at 1px 1px,#fff 1px,transparent 0);background-size:22px 22px}
+  .hero>*{position:relative}
+  .hero .pill{display:inline-block;background:#ffffff1f;border:1px solid #ffffff33;color:#f3d9bf;
+    font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:.4rem .9rem;border-radius:999px;margin-bottom:1.1rem}
+  .hero h1{font-family:var(--serif);font-size:2.6rem;line-height:1.08;font-weight:800;letter-spacing:-.01em}
+  .hero p{color:#efe2d4;margin:.9rem auto 0;max-width:560px;font-size:1.02rem;line-height:1.55}
+
+  /* SECTION TITLE */
+  .sect{display:flex;align-items:baseline;gap:1rem;margin:0 0 1.3rem}
+  .sect h2{font-family:var(--serif);font-size:1.7rem;font-weight:700}
+  .sect .ln{flex:1;height:1px;background:var(--line)}
 
   /* GRID */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;
-    display:flex;flex-direction:column;transition:.18s;position:relative}
-  .card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 30px #0006}
-  .card .cover{height:150px;background:#0f1420;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.3rem}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;cursor:pointer;
+    display:flex;flex-direction:column;transition:.18s;box-shadow:0 1px 2px #0000000a}
+  .card:hover{transform:translateY(-4px);box-shadow:0 16px 34px #5a3a2522;border-color:#e0d2bf}
+  .card .cover{height:172px;position:relative;overflow:hidden;background:linear-gradient(135deg,#efe4d4,#e6d6c1)}
   .card .cover img{width:100%;height:100%;object-fit:cover}
-  .card .cover .ic{font-size:3.4rem}
-  .card .body{padding:.9rem 1rem 1.1rem}
-  .card .body h3{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.4rem}
-  .card .body p{color:var(--mut);font-size:.85rem;margin-top:.35rem;line-height:1.45}
-  .card .ver{margin-top:.7rem;color:var(--acc);font-weight:700;font-size:.82rem}
+  .card .cover .ic-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .card .cover .ic{width:74px;height:74px;border-radius:50%;background:#fff;box-shadow:0 6px 16px #6e44301f;
+    display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+  .card .body{padding:1.05rem 1.15rem 1.25rem}
+  .card .body h3{font-family:var(--serif);font-size:1.2rem;font-weight:700;display:flex;align-items:center;gap:.45rem}
+  .card .body p{color:var(--mut);font-size:.88rem;margin-top:.4rem;line-height:1.5;min-height:2.6em}
+  .card .ver{margin-top:.85rem;color:var(--acc);font-weight:700;font-size:.85rem;display:inline-flex;align-items:center;gap:.3rem}
 
-  /* FOOTER / CONTACTO */
-  footer{margin-top:2.5rem;text-align:center;color:var(--mut);border-top:1px solid var(--line);padding-top:1.6rem}
-  .contact-btns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin:.8rem 0 1.1rem}
-  .contact-btns a{display:inline-flex;align-items:center;gap:.4rem;background:#ffffff12;border:1px solid var(--line);
-    color:var(--txt);padding:.55rem .9rem;border-radius:10px;font-weight:700;font-size:.85rem}
-  .contact-btns a.wa{background:#25d36622;border-color:#25d36655}
-  .muted{color:var(--mut);font-size:.8rem}
+  /* FOOTER */
+  footer{margin-top:3rem;text-align:center;color:var(--mut);border-top:1px solid var(--line);padding-top:1.8rem}
+  .contact-btns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin:.9rem 0 1.2rem}
+  .contact-btns a{display:inline-flex;align-items:center;gap:.45rem;background:#fff;border:1px solid var(--line);
+    color:var(--txt);padding:.6rem 1rem;border-radius:11px;font-weight:700;font-size:.86rem}
+  .contact-btns a.wa{background:#25d3661a;border-color:#25d36655;color:#1f7a44}
+  .muted{color:var(--mut);font-size:.82rem}
 
-  /* OVERLAY genérico */
-  .ov{position:fixed;inset:0;background:#04070cdd;backdrop-filter:blur(4px);z-index:50;display:none;
-    align-items:center;justify-content:center;padding:1rem}
+  /* OVERLAY */
+  .ov{position:fixed;inset:0;background:#2a1c1366;backdrop-filter:blur(5px);z-index:50;display:none;align-items:center;justify-content:center;padding:1rem}
   .ov.open{display:flex}
-  .modal{background:var(--bg2);border:1px solid var(--line);border-radius:16px;width:100%;max-width:460px;padding:1.4rem}
-  .modal h3{font-size:1.1rem;margin-bottom:1rem}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:460px;padding:1.5rem;box-shadow:0 24px 60px #2a1c1333}
+  .modal h3{font-family:var(--serif);font-size:1.25rem;margin-bottom:1rem}
   .modal label{display:block;font-size:.78rem;font-weight:700;color:var(--mut);margin:.7rem 0 .3rem}
-  .modal input,.modal textarea,.modal select{width:100%;padding:.6rem .7rem;border-radius:9px;border:1px solid var(--line);
-    background:#0f1420;color:var(--txt);font-size:.9rem;font-family:inherit}
-  .modal .row{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.2rem}
-  .err{color:#ff6b6b;font-size:.8rem;margin-top:.5rem;min-height:1rem}
+  .modal input,.modal textarea,.modal select{width:100%;padding:.62rem .75rem;border-radius:10px;border:1px solid var(--line);background:var(--field);color:var(--txt);font-size:.92rem;font-family:inherit}
+  .modal .row{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.3rem}
+  .err{color:#c0392b;font-size:.8rem;margin-top:.5rem;min-height:1rem}
 
-  /* VISOR (libro con flechas) */
-  #viewer .vbox{background:var(--bg2);border:1px solid var(--line);border-radius:16px;width:100%;max-width:760px;
-    max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
-  #viewer .vhead{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid var(--line)}
-  #viewer .vhead h3{font-size:1.05rem;display:flex;align-items:center;gap:.45rem}
-  #viewer .vstage{position:relative;background:#0c1018;flex:1;min-height:280px;display:flex;align-items:center;justify-content:center}
-  #viewer .vstage img{max-width:100%;max-height:62vh;object-fit:contain;display:block}
-  #viewer .vstage .ph{font-size:5rem;opacity:.5}
-  #viewer .nav{position:absolute;top:50%;transform:translateY(-50%);background:#000a;border:1px solid var(--line);
-    color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  #viewer .nav.prev{left:10px}#viewer .nav.next{right:10px}
-  #viewer .vcap{padding:.9rem 1.1rem;color:var(--txt);font-size:.92rem;line-height:1.5;min-height:2.5rem;background:var(--bg2)}
-  #viewer .vfoot{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;border-top:1px solid var(--line)}
-  #viewer .dots{display:flex;gap:.35rem}.dot2{width:8px;height:8px;border-radius:50%;background:#ffffff33}.dot2.on{background:var(--acc)}
+  /* VISOR */
+  #viewer .vbox{background:var(--panel);border:1px solid var(--line);border-radius:20px;width:100%;max-width:780px;max-height:93vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px #2a1c1340}
+  #viewer .vhead{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid var(--line)}
+  #viewer .vhead h3{font-family:var(--serif);font-size:1.25rem;display:flex;align-items:center;gap:.5rem}
+  #viewer .vstage{position:relative;background:#f1e9dd;flex:1;min-height:300px;display:flex;align-items:center;justify-content:center}
+  #viewer .vstage img{max-width:100%;max-height:64vh;object-fit:contain;display:block}
+  #viewer .vstage .ph{font-size:5rem;opacity:.4}
+  #viewer .nav{position:absolute;top:50%;transform:translateY(-50%);background:#fffffff2;border:1px solid var(--line);color:var(--txt);width:44px;height:44px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px #0002}
+  #viewer .nav:hover{background:#fff}
+  #viewer .nav.prev{left:12px}#viewer .nav.next{right:12px}
+  #viewer .vcap{padding:1rem 1.2rem;color:var(--txt);font-size:.95rem;line-height:1.55;min-height:2.6rem}
+  #viewer .vfoot{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.2rem;border-top:1px solid var(--line)}
+  #viewer .dots{display:flex;gap:.4rem}.dot2{width:8px;height:8px;border-radius:50%;background:#d8cab6}.dot2.on{background:var(--acc)}
 
   /* ADMIN */
-  #admin .apanel{background:var(--bg2);border:1px solid var(--line);border-radius:16px;width:100%;max-width:820px;
-    max-height:94vh;overflow:auto;padding:1.3rem}
-  #admin h2{font-size:1.2rem;margin-bottom:.3rem}
-  .aapp{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem;margin-top:.9rem}
+  #admin .apanel{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:840px;max-height:94vh;overflow:auto;padding:1.4rem;box-shadow:0 30px 70px #2a1c1340}
+  #admin h2{font-family:var(--serif);font-size:1.35rem;margin-bottom:.3rem}
+  .aapp{background:var(--field);border:1px solid var(--line);border-radius:14px;padding:1rem;margin-top:.9rem}
   .aapp .arow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
-  .aapp .arow .nm{font-weight:800;flex:1;min-width:120px}
-  .mini{background:#ffffff14;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:.35rem .55rem;cursor:pointer;font-size:.8rem;font-weight:700}
-  .pg{display:flex;gap:.5rem;align-items:flex-start;margin-top:.5rem;background:#0f1420;border:1px solid var(--line);border-radius:9px;padding:.5rem}
-  .pg img{width:54px;height:54px;object-fit:cover;border-radius:7px;background:#0008}
-  .tag{font-size:.7rem;color:var(--mut)}
-  .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg2) 30%);padding-top:1rem;margin-top:1rem;display:flex;gap:.6rem;justify-content:flex-end}
-  @media(max-width:560px){.hero h1{font-size:1.6rem}}
+  .aapp .arow .nm{font-weight:800;flex:1;min-width:120px;font-family:var(--serif)}
+  .mini{background:#fff;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:.4rem .6rem;cursor:pointer;font-size:.8rem;font-weight:700}
+  .mini:hover{background:#fbf7f1}
+  .fld{width:100%;padding:.5rem .65rem;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--txt);font-family:inherit;font-size:.88rem}
+  .pg{display:flex;gap:.5rem;align-items:flex-start;margin-top:.5rem;background:#fff;border:1px solid var(--line);border-radius:10px;padding:.55rem}
+  .pg img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#eee}
+  .tag{font-size:.72rem;color:var(--mut);font-weight:600}
+  .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--panel) 30%);padding-top:1rem;margin-top:1rem;display:flex;gap:.6rem;justify-content:flex-end;align-items:center}
+  @media(max-width:560px){.hero h1{font-size:2rem}.hero{padding:2.4rem 1rem 2.6rem}.sect h2{font-size:1.4rem}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="dot">🧩</span> <span>Apps CyC</span></div>
+    <div class="brand"><span class="dot">❖</span> <span>Apps CyC</span></div>
     <div style="display:flex;gap:.5rem">
       <button class="btn btn-ghost" onclick="Vitrina.share()">🔗 Compartir</button>
       <button class="btn btn-ghost" onclick="Vitrina.openLogin()">🔑 Admin</button>
@@ -110,10 +123,13 @@
   <section class="hero">
     <span class="pill">Soluciones digitales para tu negocio</span>
     <h1 id="h-titulo">Apps CyC</h1>
-    <p id="h-sub">Mirá todas las aplicaciones que tenemos. Tocá cualquiera para ver cómo funciona y qué ve tu cliente.</p>
+    <p id="h-sub">Mirá todas las aplicaciones que desarrollamos. Tocá cualquiera para ver cómo funciona y qué ve tu cliente.</p>
   </section>
 
-  <main><div id="grid" class="grid"></div></main>
+  <main>
+    <div class="sect"><h2>Nuestras aplicaciones</h2><span class="ln"></span></div>
+    <div id="grid" class="grid"></div>
+  </main>
 
   <footer>
     <div class="muted">¿Querés una app para tu negocio? Escribinos, tu consulta no molesta 😊</div>
@@ -170,12 +186,12 @@
 
     <div class="aapp">
       <label class="tag">Título de la vitrina</label>
-      <input id="ad-titulo" class="mini" style="width:100%;padding:.55rem .7rem" >
+      <input id="ad-titulo" class="fld">
       <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
         <div style="flex:1;min-width:160px"><label class="tag">Email de contacto</label>
-          <input id="ad-email" style="width:100%;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+          <input id="ad-email" class="fld"></div>
         <div style="flex:1;min-width:160px"><label class="tag">WhatsApp (con código país)</label>
-          <input id="ad-wa" placeholder="+5491155550000" style="width:100%;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+          <input id="ad-wa" class="fld" placeholder="+5491155550000"></div>
       </div>
     </div>
 
@@ -217,7 +233,6 @@ const Vitrina = (() => {
   const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const $ = id => document.getElementById(id);
 
-  // ── Carga pública ───────────────────────────────────────────
   async function boot(){
     try{
       const r = await fetch(`${SB_URL}/rest/v1/rpc/vitrina_publica`,{
@@ -236,15 +251,14 @@ const Vitrina = (() => {
     const apps = (data.apps||[]).filter(a=>a.visible!==false).sort((a,b)=>(a.orden||999)-(b.orden||999));
     $('grid').innerHTML = apps.map((a,i)=>`
       <div class="card" onclick="Vitrina.openViewer(${i})">
-        <div class="cover">${a.portada?`<img src="${esc(a.portada)}" alt="">`:`<span class="ic">${esc(a.icono||'📦')}</span>`}</div>
+        <div class="cover">${a.portada?`<img src="${esc(a.portada)}" alt="">`:`<div class="ic-wrap"><span class="ic">${esc(a.icono||'📦')}</span></div>`}</div>
         <div class="body">
-          <h3>${esc(a.icono||'')} ${esc(a.nombre)}</h3>
+          <h3>${esc(a.nombre)}</h3>
           <p>${esc(a.detalle||'')}</p>
-          <div class="ver">Ver cómo funciona →</div>
+          <span class="ver">Ver cómo funciona →</span>
         </div>
       </div>`).join('') || '<p class="muted">Todavía no hay apps cargadas.</p>';
     Vitrina._apps = apps;
-    // contacto
     const c = data.contacto||{};
     let html='';
     if(c.email) html+=`<a href="mailto:${esc(c.email)}">✉️ ${esc(c.email)}</a>`;
@@ -252,7 +266,6 @@ const Vitrina = (() => {
     $('contact-btns').innerHTML = html;
   }
 
-  // ── Visor (libro) ───────────────────────────────────────────
   function openViewer(i){
     vApp = Vitrina._apps[i]; if(!vApp) return;
     vPages = (vApp.paginas&&vApp.paginas.length) ? vApp.paginas : [{img:vApp.portada||'', texto:vApp.detalle||''}];
@@ -269,15 +282,16 @@ const Vitrina = (() => {
     else { img.style.display='none'; ph.style.display='block'; }
     $('v-cap').textContent = p.texto||'';
     $('v-dots').innerHTML = vPages.map((_,k)=>`<span class="dot2 ${k===vIdx?'on':''}"></span>`).join('');
+    const showNav = vPages.length>1 ? 'flex':'none';
+    document.querySelectorAll('#viewer .nav').forEach(n=>n.style.display=showNav);
   }
   function vnav(d){ vIdx=(vIdx+d+vPages.length)%vPages.length; paintPage(); }
   function closeViewer(){ $('viewer').classList.remove('open'); }
 
-  // ── Compartir / QR ──────────────────────────────────────────
   function share(){
     const url = location.href.split('#')[0];
     const qr = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(url)}`;
-    const w = `<div style="text-align:center"><img src="${qr}" style="border-radius:12px;background:#fff;padding:6px"><p class="tag" style="margin-top:.6rem;word-break:break-all">${esc(url)}</p></div>`;
+    const w = `<div style="text-align:center"><img src="${qr}" style="border-radius:12px;background:#fff;padding:6px;border:1px solid var(--line)"><p class="tag" style="margin-top:.6rem;word-break:break-all">${esc(url)}</p></div>`;
     const html = `<h3>🔗 Compartir la vitrina</h3>${w}<div class="row"><button class="btn btn-ghost" onclick="navigator.clipboard&&navigator.clipboard.writeText('${url}')">Copiar link</button><button class="btn btn-acc" onclick="Vitrina._closeShare()">Listo</button></div>`;
     let ov = $('shareov');
     if(!ov){ ov=document.createElement('div'); ov.id='shareov'; ov.className='ov'; ov.innerHTML='<div class="modal"></div>'; document.body.appendChild(ov); }
@@ -285,7 +299,6 @@ const Vitrina = (() => {
   }
   function _closeShare(){ const o=$('shareov'); if(o) o.classList.remove('open'); }
 
-  // ── Login admin ─────────────────────────────────────────────
   function openLogin(){ if(token){ openAdmin(); return; } $('lg-err').textContent=''; $('login').classList.add('open'); }
   function closeLogin(){ $('login').classList.remove('open'); }
   async function doLogin(){
@@ -303,9 +316,7 @@ const Vitrina = (() => {
     $('lg-btn').disabled=false;
   }
 
-  // ── Admin ───────────────────────────────────────────────────
   async function openAdmin(){
-    // traer datos completos con token (si falla, usa lo público/seed)
     try{
       const r = await fetch(`${SB_URL}/rest/v1/vitrina_data?id=eq.1&select=datos`,{
         headers:{apikey:SB_KEY, Authorization:'Bearer '+token}
@@ -327,9 +338,9 @@ const Vitrina = (() => {
   function appEditor(a,i){
     const pgs = (a.paginas||[]).map((p,j)=>`
       <div class="pg">
-        ${p.img?`<img src="${esc(p.img)}">`:'<div class="ph" style="font-size:1.4rem;width:54px;height:54px;display:flex;align-items:center;justify-content:center">🖼️</div>'}
+        ${p.img?`<img src="${esc(p.img)}">`:'<div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:#f1e9dd;border-radius:8px;font-size:1.3rem">🖼️</div>'}
         <div style="flex:1">
-          <input value="${esc(p.texto||'')}" oninput="Vitrina.setPage(${i},${j},this.value)" placeholder="Texto de esta pantalla" style="width:100%;padding:.4rem .5rem;border-radius:7px;border:1px solid var(--line);background:#0f1420;color:var(--txt);font-size:.82rem">
+          <input value="${esc(p.texto||'')}" oninput="Vitrina.setPage(${i},${j},this.value)" placeholder="Texto de esta pantalla" class="fld">
           <div style="display:flex;gap:.4rem;margin-top:.35rem">
             <label class="mini">📷 Imagen<input type="file" accept="image/*" style="display:none" onchange="Vitrina.upPage(${i},${j},this)"></label>
             <button class="mini" onclick="Vitrina.delPage(${i},${j})">🗑️</button>
@@ -346,16 +357,16 @@ const Vitrina = (() => {
       </div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
         <div style="flex:1;min-width:140px"><label class="tag">Nombre</label>
-          <input value="${esc(a.nombre||'')}" oninput="Vitrina.setField(${i},'nombre',this.value)" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
-        <div style="width:70px"><label class="tag">Ícono</label>
-          <input value="${esc(a.icono||'')}" oninput="Vitrina.setField(${i},'icono',this.value)" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+          <input value="${esc(a.nombre||'')}" oninput="Vitrina.setField(${i},'nombre',this.value)" class="fld"></div>
+        <div style="width:80px"><label class="tag">Ícono</label>
+          <input value="${esc(a.icono||'')}" oninput="Vitrina.setField(${i},'icono',this.value)" class="fld"></div>
         <div style="flex:2;min-width:180px"><label class="tag">Link de la app</label>
-          <input value="${esc(a.url||'')}" oninput="Vitrina.setField(${i},'url',this.value)" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+          <input value="${esc(a.url||'')}" oninput="Vitrina.setField(${i},'url',this.value)" class="fld"></div>
       </div>
       <label class="tag" style="display:block;margin-top:.5rem">Detalle breve</label>
-      <textarea oninput="Vitrina.setField(${i},'detalle',this.value)" style="width:100%;height:48px;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)">${esc(a.detalle||'')}</textarea>
-      <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem">
-        ${a.portada?`<img src="${esc(a.portada)}" style="width:54px;height:40px;object-fit:cover;border-radius:7px">`:''}
+      <textarea oninput="Vitrina.setField(${i},'detalle',this.value)" class="fld" style="height:48px">${esc(a.detalle||'')}</textarea>
+      <div style="display:flex;gap:.5rem;align-items:center;margin-top:.6rem;flex-wrap:wrap">
+        ${a.portada?`<img src="${esc(a.portada)}" style="width:60px;height:44px;object-fit:cover;border-radius:8px">`:''}
         <label class="mini">🖼️ Portada<input type="file" accept="image/*" style="display:none" onchange="Vitrina.upCover(${i},this)"></label>
         <span class="tag">Páginas del “libro”:</span>
         <button class="mini" onclick="Vitrina.addPage(${i})">+ Página</button>
@@ -364,7 +375,6 @@ const Vitrina = (() => {
     </div>`;
   }
 
-  // edición de estado
   function setField(i,k,v){ data.apps[i][k]=v; }
   function setPage(i,j,v){ data.apps[i].paginas[j].texto=v; }
   function move(i,d){ const a=data.apps; const j=i+d; if(j<0||j>=a.length)return; [a[i],a[j]]=[a[j],a[i]]; a.forEach((x,k)=>x.orden=k+1); renderAdmin(); }
@@ -373,7 +383,6 @@ const Vitrina = (() => {
   function addPage(i){ (data.apps[i].paginas=data.apps[i].paginas||[]).push({img:'',texto:''}); renderAdmin(); }
   function delPage(i,j){ data.apps[i].paginas.splice(j,1); renderAdmin(); }
 
-  // imágenes (con compresión)
   function comprimir(file, maxLado, cb){
     if(file.size>15*1024*1024){ alert('Imagen muy pesada (máx 15MB).'); return; }
     const rd=new FileReader();
@@ -389,7 +398,6 @@ const Vitrina = (() => {
   function upCover(i,inp){ const f=inp.files[0]; if(f) comprimir(f,900,d=>{data.apps[i].portada=d; renderAdmin();}); }
   function upPage(i,j,inp){ const f=inp.files[0]; if(f) comprimir(f,1100,d=>{data.apps[i].paginas[j].img=d; renderAdmin();}); }
 
-  // guardar
   async function save(){
     data.titulo=$('ad-titulo').value.trim();
     data.contacto={ email:$('ad-email').value.trim(), whatsapp:$('ad-wa').value.trim() };
