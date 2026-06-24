@@ -154,7 +154,27 @@
     <div class="vcap" id="v-cap"></div>
     <div class="vfoot">
       <div class="dots" id="v-dots"></div>
-      <a id="v-link" class="btn btn-acc" target="_blank" rel="noopener">Abrir la app ↗</a>
+      <button class="btn btn-acc" onclick="Vitrina.openDemo()">🎁 Obtener demo 15 días, sin compromiso</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULARIO DEMO -->
+<div class="ov" id="demo">
+  <div class="modal" id="demo-modal">
+    <h3>🎁 Demo gratis por 15 días</h3>
+    <p class="muted" id="demo-app" style="margin:.2rem 0 .2rem;font-weight:700"></p>
+    <p class="muted" style="margin-bottom:.2rem">Dejanos tus datos y te contactamos para activarlo. Sin compromiso.</p>
+    <label>Nombre</label>
+    <input id="dm-nombre" type="text" placeholder="Tu nombre">
+    <label>Teléfono / WhatsApp</label>
+    <input id="dm-tel" type="tel" placeholder="+54 9 11 5555 0000">
+    <label>Email</label>
+    <input id="dm-email" type="email" placeholder="tu@email.com">
+    <div class="err" id="dm-err"></div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="Vitrina.closeDemo()">Cancelar</button>
+      <button class="btn btn-acc" id="dm-btn" onclick="Vitrina.enviarDemo()">Pedir mi demo</button>
     </div>
   </div>
 </div>
@@ -181,6 +201,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between">
       <h2>🛠️ Panel de la vitrina</h2>
       <div style="display:flex;gap:.4rem">
+        <button class="mini" onclick="Vitrina.verLeads()">📋 Solicitudes</button>
         <button class="mini" onclick="Vitrina.logout()">Salir</button>
         <button class="mini" onclick="Vitrina.closeAdmin()">✕</button>
       </div>
@@ -285,6 +306,7 @@ const Vitrina = (() => {
 
   const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const $ = id => document.getElementById(id);
+  const demoFormHTML = ($('demo-modal') || {}).innerHTML || '';
 
   async function boot(){
     try{
@@ -324,9 +346,35 @@ const Vitrina = (() => {
     vPages = (vApp.paginas&&vApp.paginas.length) ? vApp.paginas : [{img:vApp.portada||'', texto:vApp.detalle||''}];
     vIdx = 0;
     $('v-title').innerHTML = esc(vApp.icono||'')+' '+esc(vApp.nombre);
-    $('v-link').href = vApp.url||'#';
     $('viewer').classList.add('open');
     paintPage();
+  }
+
+  // ── Formulario de demo (lead) ───────────────────────────────
+  function openDemo(){
+    $('demo-modal').innerHTML = demoFormHTML; // restaurar el formulario por si quedó en "éxito"
+    $('demo-app').textContent = vApp ? ('App: '+vApp.nombre) : '';
+    $('dm-nombre').value=''; $('dm-tel').value=''; $('dm-email').value=''; $('dm-err').textContent='';
+    $('demo').classList.add('open');
+  }
+  function closeDemo(){ $('demo').classList.remove('open'); }
+  async function enviarDemo(){
+    const nombre=$('dm-nombre').value.trim(), tel=$('dm-tel').value.trim(), email=$('dm-email').value.trim();
+    if(!nombre || !tel){ $('dm-err').textContent='Completá al menos nombre y teléfono.'; return; }
+    $('dm-btn').disabled=true; $('dm-err').textContent='';
+    try{
+      await fetch(`${SB_URL}/rest/v1/rpc/vitrina_lead`,{
+        method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json'},
+        body:JSON.stringify({p_nombre:nombre, p_telefono:tel, p_email:email, p_app:(vApp&&vApp.nombre)||''})
+      });
+    }catch(e){}
+    const wa=(data.contacto&&data.contacto.whatsapp)?data.contacto.whatsapp.replace(/\D/g,''):'';
+    const msg=`Hola! Quiero el demo de 15 días de "${(vApp&&vApp.nombre)||'una app'}". Nombre: ${nombre} · Tel: ${tel} · Mail: ${email}`;
+    $('demo-modal').innerHTML = `<h3>✅ ¡Listo!</h3>
+      <p class="muted" style="margin:.6rem 0 1rem">Recibimos tu pedido. Te vamos a contactar para activar tu demo de 15 días.</p>
+      ${wa?`<a class="btn btn-acc" style="display:block;text-align:center;text-decoration:none;margin-bottom:.6rem" target="_blank" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}">📱 Avisar por WhatsApp ahora</a>`:''}
+      <div class="row"><button class="btn btn-ghost" onclick="Vitrina.closeDemo()">Cerrar</button></div>`;
+    $('dm-btn').disabled=false;
   }
   function paintPage(){
     const p = vPages[vIdx]||{};
@@ -402,6 +450,23 @@ const Vitrina = (() => {
   }
   function closeAdmin(){ $('admin').classList.remove('open'); }
   function logout(){ setSess(null); localStorage.removeItem(BIO_KEY); closeAdmin(); alert('Sesión cerrada. La próxima vez te va a pedir la clave de nuevo.'); }
+
+  async function verLeads(){
+    const tok = await authToken(); if(!tok){ alert('Entrá de nuevo.'); return; }
+    let rows=[];
+    try{
+      const r = await fetch(`${SB_URL}/rest/v1/vitrina_leads?select=*&order=created_at.desc&limit=100`,{headers:{apikey:SB_KEY, Authorization:'Bearer '+tok}});
+      rows = r.ok ? await r.json() : [];
+    }catch(e){}
+    const lista = rows.length ? rows.map(l=>`<div class="pg" style="display:block">
+        <div style="font-weight:700">${esc(l.nombre||'(sin nombre)')} ${l.app?`· <span class="tag">${esc(l.app)}</span>`:''}</div>
+        <div class="tag">📞 ${esc(l.telefono||'-')} · ✉️ ${esc(l.email||'-')} · ${new Date(l.created_at).toLocaleString('es-AR')}</div>
+      </div>`).join('') : '<p class="muted">Todavía no hay solicitudes de demo.</p>';
+    let ov=$('leadsov');
+    if(!ov){ ov=document.createElement('div'); ov.id='leadsov'; ov.className='ov'; ov.innerHTML='<div class="modal" style="max-width:560px;max-height:90vh;overflow:auto"></div>'; document.body.appendChild(ov); }
+    ov.querySelector('.modal').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h3>📋 Solicitudes de demo (${rows.length})</h3><button class="mini" onclick="document.getElementById('leadsov').classList.remove('open')">✕</button></div><div style="margin-top:.8rem">${lista}</div>`;
+    ov.classList.add('open');
+  }
 
   function renderAdmin(){
     $('ad-titulo').value = data.titulo||'';
@@ -490,7 +555,7 @@ const Vitrina = (() => {
   }
 
   boot();
-  return { openViewer,closeViewer,vnav, share,_closeShare, openLogin,closeLogin,doLogin, openAdmin,closeAdmin,logout,
+  return { openViewer,closeViewer,vnav, openDemo,closeDemo,enviarDemo, share,_closeShare, openLogin,closeLogin,doLogin, openAdmin,closeAdmin,logout,verLeads,
     setField,setPage,move,delApp,addApp,addPage,delPage,upCover,upPage,save, _apps:[] };
 })();
 </script>
