@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apps CyC — Vitrina</title>
+<style>
+  :root{
+    --bg:#0e1116; --bg2:#151a22; --card:#1b2230; --line:#2a3344;
+    --txt:#eef2f7; --mut:#9fb0c3; --acc:#2ecc71; --acc2:#27ae60; --gold:#c49b66;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,Arial,sans-serif;background:
+    radial-gradient(1200px 600px at 50% -10%, #18324a 0%, var(--bg) 55%);
+    color:var(--txt);min-height:100vh}
+  a{color:var(--acc);text-decoration:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 1rem 4rem}
+
+  /* HEADER */
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 0}
+  .brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.05rem}
+  .brand .dot{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--acc),#1f8f4e);
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+  .btn{cursor:pointer;border:0;border-radius:10px;padding:.55rem .9rem;font-weight:700;font-size:.85rem;transition:.15s}
+  .btn-ghost{background:#ffffff14;color:var(--txt);border:1px solid var(--line)}
+  .btn-ghost:hover{background:#ffffff22}
+  .btn-acc{background:var(--acc);color:#04210f}
+  .btn-acc:hover{background:var(--acc2)}
+
+  /* HERO */
+  .hero{text-align:center;padding:1.5rem 0 2.2rem}
+  .hero h1{font-size:2rem;line-height:1.15;font-weight:800;letter-spacing:-.02em}
+  .hero p{color:var(--mut);margin-top:.7rem;max-width:640px;margin-left:auto;margin-right:auto;font-size:1rem}
+  .pill{display:inline-block;background:#ffffff12;border:1px solid var(--line);color:var(--gold);
+    font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:.35rem .8rem;border-radius:999px;margin-bottom:1rem}
+
+  /* GRID */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;
+    display:flex;flex-direction:column;transition:.18s;position:relative}
+  .card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 30px #0006}
+  .card .cover{height:150px;background:#0f1420;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .card .cover img{width:100%;height:100%;object-fit:cover}
+  .card .cover .ic{font-size:3.4rem}
+  .card .body{padding:.9rem 1rem 1.1rem}
+  .card .body h3{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.4rem}
+  .card .body p{color:var(--mut);font-size:.85rem;margin-top:.35rem;line-height:1.45}
+  .card .ver{margin-top:.7rem;color:var(--acc);font-weight:700;font-size:.82rem}
+
+  /* FOOTER / CONTACTO */
+  footer{margin-top:2.5rem;text-align:center;color:var(--mut);border-top:1px solid var(--line);padding-top:1.6rem}
+  .contact-btns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin:.8rem 0 1.1rem}
+  .contact-btns a{display:inline-flex;align-items:center;gap:.4rem;background:#ffffff12;border:1px solid var(--line);
+    color:var(--txt);padding:.55rem .9rem;border-radius:10px;font-weight:700;font-size:.85rem}
+  .contact-btns a.wa{background:#25d36622;border-color:#25d36655}
+  .muted{color:var(--mut);font-size:.8rem}
+
+  /* OVERLAY genérico */
+  .ov{position:fixed;inset:0;background:#04070cdd;backdrop-filter:blur(4px);z-index:50;display:none;
+    align-items:center;justify-content:center;padding:1rem}
+  .ov.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--line);border-radius:16px;width:100%;max-width:460px;padding:1.4rem}
+  .modal h3{font-size:1.1rem;margin-bottom:1rem}
+  .modal label{display:block;font-size:.78rem;font-weight:700;color:var(--mut);margin:.7rem 0 .3rem}
+  .modal input,.modal textarea,.modal select{width:100%;padding:.6rem .7rem;border-radius:9px;border:1px solid var(--line);
+    background:#0f1420;color:var(--txt);font-size:.9rem;font-family:inherit}
+  .modal .row{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.2rem}
+  .err{color:#ff6b6b;font-size:.8rem;margin-top:.5rem;min-height:1rem}
+
+  /* VISOR (libro con flechas) */
+  #viewer .vbox{background:var(--bg2);border:1px solid var(--line);border-radius:16px;width:100%;max-width:760px;
+    max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+  #viewer .vhead{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;border-bottom:1px solid var(--line)}
+  #viewer .vhead h3{font-size:1.05rem;display:flex;align-items:center;gap:.45rem}
+  #viewer .vstage{position:relative;background:#0c1018;flex:1;min-height:280px;display:flex;align-items:center;justify-content:center}
+  #viewer .vstage img{max-width:100%;max-height:62vh;object-fit:contain;display:block}
+  #viewer .vstage .ph{font-size:5rem;opacity:.5}
+  #viewer .nav{position:absolute;top:50%;transform:translateY(-50%);background:#000a;border:1px solid var(--line);
+    color:#fff;width:42px;height:42px;border-radius:50%;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  #viewer .nav.prev{left:10px}#viewer .nav.next{right:10px}
+  #viewer .vcap{padding:.9rem 1.1rem;color:var(--txt);font-size:.92rem;line-height:1.5;min-height:2.5rem;background:var(--bg2)}
+  #viewer .vfoot{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;border-top:1px solid var(--line)}
+  #viewer .dots{display:flex;gap:.35rem}.dot2{width:8px;height:8px;border-radius:50%;background:#ffffff33}.dot2.on{background:var(--acc)}
+
+  /* ADMIN */
+  #admin .apanel{background:var(--bg2);border:1px solid var(--line);border-radius:16px;width:100%;max-width:820px;
+    max-height:94vh;overflow:auto;padding:1.3rem}
+  #admin h2{font-size:1.2rem;margin-bottom:.3rem}
+  .aapp{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem;margin-top:.9rem}
+  .aapp .arow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+  .aapp .arow .nm{font-weight:800;flex:1;min-width:120px}
+  .mini{background:#ffffff14;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:.35rem .55rem;cursor:pointer;font-size:.8rem;font-weight:700}
+  .pg{display:flex;gap:.5rem;align-items:flex-start;margin-top:.5rem;background:#0f1420;border:1px solid var(--line);border-radius:9px;padding:.5rem}
+  .pg img{width:54px;height:54px;object-fit:cover;border-radius:7px;background:#0008}
+  .tag{font-size:.7rem;color:var(--mut)}
+  .savebar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg2) 30%);padding-top:1rem;margin-top:1rem;display:flex;gap:.6rem;justify-content:flex-end}
+  @media(max-width:560px){.hero h1{font-size:1.6rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="dot">🧩</span> <span>Apps CyC</span></div>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn btn-ghost" onclick="Vitrina.share()">🔗 Compartir</button>
+      <button class="btn btn-ghost" onclick="Vitrina.openLogin()">🔑 Admin</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="pill">Soluciones digitales para tu negocio</span>
+    <h1 id="h-titulo">Apps CyC</h1>
+    <p id="h-sub">Mirá todas las aplicaciones que tenemos. Tocá cualquiera para ver cómo funciona y qué ve tu cliente.</p>
+  </section>
+
+  <main><div id="grid" class="grid"></div></main>
+
+  <footer>
+    <div class="muted">¿Querés una app para tu negocio? Escribinos, tu consulta no molesta 😊</div>
+    <div class="contact-btns" id="contact-btns"></div>
+    <div class="muted">Hecho con ❤️ — Ecosistema CyC</div>
+  </footer>
+</div>
+
+<!-- VISOR -->
+<div class="ov" id="viewer">
+  <div class="vbox">
+    <div class="vhead">
+      <h3 id="v-title">App</h3>
+      <button class="mini" onclick="Vitrina.closeViewer()">✕ Cerrar</button>
+    </div>
+    <div class="vstage">
+      <button class="nav prev" onclick="Vitrina.vnav(-1)">‹</button>
+      <img id="v-img" alt="" style="display:none">
+      <div class="ph" id="v-ph">🖼️</div>
+      <button class="nav next" onclick="Vitrina.vnav(1)">›</button>
+    </div>
+    <div class="vcap" id="v-cap"></div>
+    <div class="vfoot">
+      <div class="dots" id="v-dots"></div>
+      <a id="v-link" class="btn btn-acc" target="_blank" rel="noopener">Abrir la app ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN ADMIN -->
+<div class="ov" id="login">
+  <div class="modal">
+    <h3>🔑 Acceso del administrador</h3>
+    <label>Email</label>
+    <input id="lg-email" type="email" autocomplete="username" placeholder="tu@email.com">
+    <label>Contraseña</label>
+    <input id="lg-pass" type="password" autocomplete="current-password" placeholder="••••••">
+    <div class="err" id="lg-err"></div>
+    <div class="row">
+      <button class="btn btn-ghost" onclick="Vitrina.closeLogin()">Cancelar</button>
+      <button class="btn btn-acc" id="lg-btn" onclick="Vitrina.doLogin()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="ov" id="admin">
+  <div class="apanel">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2>🛠️ Panel de la vitrina</h2>
+      <button class="mini" onclick="Vitrina.closeAdmin()">✕</button>
+    </div>
+    <p class="tag">Editá los textos, el orden, las portadas y las páginas del “libro” de cada app. Guardá al final.</p>
+
+    <div class="aapp">
+      <label class="tag">Título de la vitrina</label>
+      <input id="ad-titulo" class="mini" style="width:100%;padding:.55rem .7rem" >
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
+        <div style="flex:1;min-width:160px"><label class="tag">Email de contacto</label>
+          <input id="ad-email" style="width:100%;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+        <div style="flex:1;min-width:160px"><label class="tag">WhatsApp (con código país)</label>
+          <input id="ad-wa" placeholder="+5491155550000" style="width:100%;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+      </div>
+    </div>
+
+    <div id="ad-apps"></div>
+
+    <div class="savebar">
+      <span class="err" id="ad-msg" style="align-self:center"></span>
+      <button class="btn btn-ghost" onclick="Vitrina.addApp()">+ Agregar app</button>
+      <button class="btn btn-acc" onclick="Vitrina.save()">💾 Guardar todo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const Vitrina = (() => {
+  const SB_URL = 'https://pcxlhgdpxfuybzfsquem.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjeGxoZ2RweGZ1eWJ6ZnNxdWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MDIyOTQsImV4cCI6MjA5NjE3ODI5NH0.HJWpFO8TkRsmUx15GtSsUusjvVEhUsi5b_QGoPoPU00';
+  const TOK_KEY = 'vitrina_token';
+
+  const SEED = {
+    titulo: 'Apps CyC — Soluciones para tu negocio',
+    contacto: { email: 'dragoprot26@gmail.com', whatsapp: '' },
+    apps: [
+      { id:'tiendalibre', nombre:'Tienda Libre', icono:'🛍️', detalle:'Tienda de ropa online · catálogo y pedidos por WhatsApp.', url:'https://tienda-libre-chi.vercel.app', visible:true, orden:1, portada:'', paginas:[] },
+      { id:'dulzura', nombre:'Dulzura del Hogar', icono:'🍰', detalle:'Artesanías y comidas caseras · catálogo y pedidos.', url:'https://dulzura-hogar.vercel.app', visible:true, orden:2, portada:'', paginas:[] },
+      { id:'salonpro', nombre:'SalonPro', icono:'✂️', detalle:'Salón de belleza y peluquería · turnos y servicios.', url:'https://salonpro-sepia.vercel.app', visible:true, orden:3, portada:'', paginas:[] },
+      { id:'comidarapida', nombre:'Comida Rápida', icono:'🍔', detalle:'Menú, promos y pedidos para locales de comida.', url:'https://comida-rapida-five.vercel.app', visible:true, orden:4, portada:'', paginas:[] },
+      { id:'calzado', nombre:'Calzado', icono:'👟', detalle:'Zapatería · catálogo, novedades y pedidos.', url:'https://calzado-multi-inquilino.vercel.app', visible:true, orden:5, portada:'', paginas:[] },
+      { id:'vidagenuina', nombre:'Dietética Vida Genuina', icono:'🌿', detalle:'Dietética · catálogo, carrito y pedidos con código de retiro.', url:'https://diet-tica-vida-genuina.vercel.app', visible:true, orden:6, portada:'', paginas:[] },
+      { id:'barcel', nombre:'Bar-Cel', icono:'🍺', detalle:'Gestión de almacén y bar.', url:'https://barcel.vercel.app/', visible:true, orden:7, portada:'', paginas:[] },
+      { id:'cyccobros', nombre:'Cyc-Cobros', icono:'💰', detalle:'Sistema de cobros y ventas.', url:'https://dragoprot26-esp.github.io/cyc-cobros/', visible:true, orden:8, portada:'', paginas:[] }
+    ]
+  };
+
+  let data = JSON.parse(JSON.stringify(SEED));
+  let token = localStorage.getItem(TOK_KEY) || '';
+  let vIdx = 0, vPages = [], vApp = null;
+
+  const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const $ = id => document.getElementById(id);
+
+  // ── Carga pública ───────────────────────────────────────────
+  async function boot(){
+    try{
+      const r = await fetch(`${SB_URL}/rest/v1/rpc/vitrina_publica`,{
+        method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json'}, body:'{}'
+      });
+      const d = r.ok ? await r.json() : null;
+      if (d && Array.isArray(d.apps) && d.apps.length){
+        data = { titulo:d.titulo||SEED.titulo, contacto:d.contacto||SEED.contacto, apps:d.apps };
+      }
+    }catch(e){ /* usa SEED */ }
+    renderPublic();
+  }
+
+  function renderPublic(){
+    $('h-titulo').textContent = data.titulo || 'Apps CyC';
+    const apps = (data.apps||[]).filter(a=>a.visible!==false).sort((a,b)=>(a.orden||999)-(b.orden||999));
+    $('grid').innerHTML = apps.map((a,i)=>`
+      <div class="card" onclick="Vitrina.openViewer(${i})">
+        <div class="cover">${a.portada?`<img src="${esc(a.portada)}" alt="">`:`<span class="ic">${esc(a.icono||'📦')}</span>`}</div>
+        <div class="body">
+          <h3>${esc(a.icono||'')} ${esc(a.nombre)}</h3>
+          <p>${esc(a.detalle||'')}</p>
+          <div class="ver">Ver cómo funciona →</div>
+        </div>
+      </div>`).join('') || '<p class="muted">Todavía no hay apps cargadas.</p>';
+    Vitrina._apps = apps;
+    // contacto
+    const c = data.contacto||{};
+    let html='';
+    if(c.email) html+=`<a href="mailto:${esc(c.email)}">✉️ ${esc(c.email)}</a>`;
+    if(c.whatsapp) html+=`<a class="wa" target="_blank" href="https://wa.me/${esc((c.whatsapp||'').replace(/\D/g,''))}">📱 WhatsApp</a>`;
+    $('contact-btns').innerHTML = html;
+  }
+
+  // ── Visor (libro) ───────────────────────────────────────────
+  function openViewer(i){
+    vApp = Vitrina._apps[i]; if(!vApp) return;
+    vPages = (vApp.paginas&&vApp.paginas.length) ? vApp.paginas : [{img:vApp.portada||'', texto:vApp.detalle||''}];
+    vIdx = 0;
+    $('v-title').innerHTML = esc(vApp.icono||'')+' '+esc(vApp.nombre);
+    $('v-link').href = vApp.url||'#';
+    $('viewer').classList.add('open');
+    paintPage();
+  }
+  function paintPage(){
+    const p = vPages[vIdx]||{};
+    const img=$('v-img'), ph=$('v-ph');
+    if(p.img){ img.src=p.img; img.style.display='block'; ph.style.display='none'; }
+    else { img.style.display='none'; ph.style.display='block'; }
+    $('v-cap').textContent = p.texto||'';
+    $('v-dots').innerHTML = vPages.map((_,k)=>`<span class="dot2 ${k===vIdx?'on':''}"></span>`).join('');
+  }
+  function vnav(d){ vIdx=(vIdx+d+vPages.length)%vPages.length; paintPage(); }
+  function closeViewer(){ $('viewer').classList.remove('open'); }
+
+  // ── Compartir / QR ──────────────────────────────────────────
+  function share(){
+    const url = location.href.split('#')[0];
+    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=${encodeURIComponent(url)}`;
+    const w = `<div style="text-align:center"><img src="${qr}" style="border-radius:12px;background:#fff;padding:6px"><p class="tag" style="margin-top:.6rem;word-break:break-all">${esc(url)}</p></div>`;
+    const html = `<h3>🔗 Compartir la vitrina</h3>${w}<div class="row"><button class="btn btn-ghost" onclick="navigator.clipboard&&navigator.clipboard.writeText('${url}')">Copiar link</button><button class="btn btn-acc" onclick="Vitrina._closeShare()">Listo</button></div>`;
+    let ov = $('shareov');
+    if(!ov){ ov=document.createElement('div'); ov.id='shareov'; ov.className='ov'; ov.innerHTML='<div class="modal"></div>'; document.body.appendChild(ov); }
+    ov.querySelector('.modal').innerHTML = html; ov.classList.add('open');
+  }
+  function _closeShare(){ const o=$('shareov'); if(o) o.classList.remove('open'); }
+
+  // ── Login admin ─────────────────────────────────────────────
+  function openLogin(){ if(token){ openAdmin(); return; } $('lg-err').textContent=''; $('login').classList.add('open'); }
+  function closeLogin(){ $('login').classList.remove('open'); }
+  async function doLogin(){
+    const email=$('lg-email').value.trim(), pass=$('lg-pass').value;
+    $('lg-err').textContent=''; $('lg-btn').disabled=true;
+    try{
+      const r = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`,{
+        method:'POST', headers:{apikey:SB_KEY,'Content-Type':'application/json'}, body:JSON.stringify({email,password:pass})
+      });
+      const d = await r.json();
+      if(!r.ok || !d.access_token){ $('lg-err').textContent='Email o contraseña incorrectos.'; $('lg-btn').disabled=false; return; }
+      token = d.access_token; localStorage.setItem(TOK_KEY, token);
+      closeLogin(); await openAdmin();
+    }catch(e){ $('lg-err').textContent='Error de conexión.'; }
+    $('lg-btn').disabled=false;
+  }
+
+  // ── Admin ───────────────────────────────────────────────────
+  async function openAdmin(){
+    // traer datos completos con token (si falla, usa lo público/seed)
+    try{
+      const r = await fetch(`${SB_URL}/rest/v1/vitrina_data?id=eq.1&select=datos`,{
+        headers:{apikey:SB_KEY, Authorization:'Bearer '+token}
+      });
+      if(r.status===401||r.status===403){ token=''; localStorage.removeItem(TOK_KEY); alert('Tu sesión venció o no sos admin. Entrá de nuevo.'); return; }
+      const rows = r.ok ? await r.json() : [];
+      if(rows&&rows[0]&&rows[0].datos&&rows[0].datos.apps){ data = rows[0].datos; }
+    }catch(e){}
+    renderAdmin(); $('admin').classList.add('open');
+  }
+  function closeAdmin(){ $('admin').classList.remove('open'); }
+
+  function renderAdmin(){
+    $('ad-titulo').value = data.titulo||'';
+    $('ad-email').value = (data.contacto&&data.contacto.email)||'';
+    $('ad-wa').value = (data.contacto&&data.contacto.whatsapp)||'';
+    $('ad-apps').innerHTML = (data.apps||[]).map((a,i)=>appEditor(a,i)).join('');
+  }
+  function appEditor(a,i){
+    const pgs = (a.paginas||[]).map((p,j)=>`
+      <div class="pg">
+        ${p.img?`<img src="${esc(p.img)}">`:'<div class="ph" style="font-size:1.4rem;width:54px;height:54px;display:flex;align-items:center;justify-content:center">🖼️</div>'}
+        <div style="flex:1">
+          <input value="${esc(p.texto||'')}" oninput="Vitrina.setPage(${i},${j},this.value)" placeholder="Texto de esta pantalla" style="width:100%;padding:.4rem .5rem;border-radius:7px;border:1px solid var(--line);background:#0f1420;color:var(--txt);font-size:.82rem">
+          <div style="display:flex;gap:.4rem;margin-top:.35rem">
+            <label class="mini">📷 Imagen<input type="file" accept="image/*" style="display:none" onchange="Vitrina.upPage(${i},${j},this)"></label>
+            <button class="mini" onclick="Vitrina.delPage(${i},${j})">🗑️</button>
+          </div>
+        </div>
+      </div>`).join('');
+    return `<div class="aapp">
+      <div class="arow">
+        <span class="nm">${esc(a.icono||'')} ${esc(a.nombre)}</span>
+        <label class="tag"><input type="checkbox" ${a.visible!==false?'checked':''} onchange="Vitrina.setField(${i},'visible',this.checked)"> Mostrar</label>
+        <button class="mini" onclick="Vitrina.move(${i},-1)">↑</button>
+        <button class="mini" onclick="Vitrina.move(${i},1)">↓</button>
+        <button class="mini" onclick="Vitrina.delApp(${i})">🗑️</button>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.6rem">
+        <div style="flex:1;min-width:140px"><label class="tag">Nombre</label>
+          <input value="${esc(a.nombre||'')}" oninput="Vitrina.setField(${i},'nombre',this.value)" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+        <div style="width:70px"><label class="tag">Ícono</label>
+          <input value="${esc(a.icono||'')}" oninput="Vitrina.setField(${i},'icono',this.value)" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+        <div style="flex:2;min-width:180px"><label class="tag">Link de la app</label>
+          <input value="${esc(a.url||'')}" oninput="Vitrina.setField(${i},'url',this.value)" style="width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)"></div>
+      </div>
+      <label class="tag" style="display:block;margin-top:.5rem">Detalle breve</label>
+      <textarea oninput="Vitrina.setField(${i},'detalle',this.value)" style="width:100%;height:48px;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:#0f1420;color:var(--txt)">${esc(a.detalle||'')}</textarea>
+      <div style="display:flex;gap:.5rem;align-items:center;margin-top:.5rem">
+        ${a.portada?`<img src="${esc(a.portada)}" style="width:54px;height:40px;object-fit:cover;border-radius:7px">`:''}
+        <label class="mini">🖼️ Portada<input type="file" accept="image/*" style="display:none" onchange="Vitrina.upCover(${i},this)"></label>
+        <span class="tag">Páginas del “libro”:</span>
+        <button class="mini" onclick="Vitrina.addPage(${i})">+ Página</button>
+      </div>
+      ${pgs}
+    </div>`;
+  }
+
+  // edición de estado
+  function setField(i,k,v){ data.apps[i][k]=v; }
+  function setPage(i,j,v){ data.apps[i].paginas[j].texto=v; }
+  function move(i,d){ const a=data.apps; const j=i+d; if(j<0||j>=a.length)return; [a[i],a[j]]=[a[j],a[i]]; a.forEach((x,k)=>x.orden=k+1); renderAdmin(); }
+  function delApp(i){ if(confirm('¿Borrar esta app de la vitrina?')){ data.apps.splice(i,1); renderAdmin(); } }
+  function addApp(){ data.apps.push({id:'app-'+Date.now(),nombre:'Nueva App',icono:'📦',detalle:'',url:'',visible:true,orden:data.apps.length+1,portada:'',paginas:[]}); renderAdmin(); }
+  function addPage(i){ (data.apps[i].paginas=data.apps[i].paginas||[]).push({img:'',texto:''}); renderAdmin(); }
+  function delPage(i,j){ data.apps[i].paginas.splice(j,1); renderAdmin(); }
+
+  // imágenes (con compresión)
+  function comprimir(file, maxLado, cb){
+    if(file.size>15*1024*1024){ alert('Imagen muy pesada (máx 15MB).'); return; }
+    const rd=new FileReader();
+    rd.onload=()=>{ const im=new Image(); im.onload=()=>{
+      let w=im.width,h=im.height;
+      if(w>maxLado||h>maxLado){ if(w>=h){h=Math.round(h*maxLado/w);w=maxLado;} else {w=Math.round(w*maxLado/h);h=maxLado;} }
+      const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(im,0,0,w,h);
+      cb(cv.toDataURL('image/jpeg',0.82));
+    }; im.src=rd.result; };
+    rd.readAsDataURL(file);
+  }
+  function upCover(i,inp){ const f=inp.files[0]; if(f) comprimir(f,900,d=>{data.apps[i].portada=d; renderAdmin();}); }
+  function upPage(i,j,inp){ const f=inp.files[0]; if(f) comprimir(f,1100,d=>{data.apps[i].paginas[j].img=d; renderAdmin();}); }
+
+  // guardar
+  async function save(){
+    data.titulo=$('ad-titulo').value.trim();
+    data.contacto={ email:$('ad-email').value.trim(), whatsapp:$('ad-wa').value.trim() };
+    $('ad-msg').textContent='Guardando...';
+    try{
+      const r = await fetch(`${SB_URL}/rest/v1/vitrina_data`,{
+        method:'POST',
+        headers:{apikey:SB_KEY, Authorization:'Bearer '+token, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates'},
+        body:JSON.stringify({id:1, datos:data, updated_at:new Date().toISOString()})
+      });
+      if(r.ok){ $('ad-msg').textContent='✅ Guardado'; renderPublic(); setTimeout(()=>$('ad-msg').textContent='',2500); }
+      else { const t=await r.text(); $('ad-msg').textContent='Error al guardar ('+r.status+')'; console.error(t); }
+    }catch(e){ $('ad-msg').textContent='Error de conexión'; }
+  }
+
+  boot();
+  return { openViewer,closeViewer,vnav, share,_closeShare, openLogin,closeLogin,doLogin, openAdmin,closeAdmin,
+    setField,setPage,move,delApp,addApp,addPage,delPage,upCover,upPage,save, _apps:[] };
+})();
+</script>
+</body>
+</html>
