@@ -132,7 +132,7 @@
   </main>
 
   <footer>
-    <div class="muted">¿Querés una app para tu negocio? Escribinos, tu consulta no molesta 😊</div>
+    <div class="muted">¿Querés una app para tu negocio o microemprendimiento? Escribinos, tu consulta no molesta 😊</div>
     <div class="contact-btns" id="contact-btns"></div>
     <div class="muted">Hecho con ❤️ — Ecosistema CyC</div>
   </footer>
@@ -180,7 +180,10 @@
   <div class="apanel">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <h2>🛠️ Panel de la vitrina</h2>
-      <button class="mini" onclick="Vitrina.closeAdmin()">✕</button>
+      <div style="display:flex;gap:.4rem">
+        <button class="mini" onclick="Vitrina.logout()">Salir</button>
+        <button class="mini" onclick="Vitrina.closeAdmin()">✕</button>
+      </div>
     </div>
     <p class="tag">Editá los textos, el orden, las portadas y las páginas del “libro” de cada app. Guardá al final.</p>
 
@@ -209,7 +212,8 @@
 const Vitrina = (() => {
   const SB_URL = 'https://pcxlhgdpxfuybzfsquem.supabase.co';
   const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjeGxoZ2RweGZ1eWJ6ZnNxdWVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MDIyOTQsImV4cCI6MjA5NjE3ODI5NH0.HJWpFO8TkRsmUx15GtSsUusjvVEhUsi5b_QGoPoPU00';
-  const TOK_KEY = 'vitrina_token';
+  const SESS_KEY = 'vitrina_sess';
+  const BIO_KEY = 'vitrina_bio';
 
   const SEED = {
     titulo: 'Apps CyC — Soluciones para tu negocio',
@@ -227,8 +231,57 @@ const Vitrina = (() => {
   };
 
   let data = JSON.parse(JSON.stringify(SEED));
-  let token = localStorage.getItem(TOK_KEY) || '';
   let vIdx = 0, vPages = [], vApp = null;
+
+  // ── Sesión persistente (con refresh) para no re-tipear la clave ──
+  function getSess(){ try{ return JSON.parse(localStorage.getItem(SESS_KEY)||'null'); }catch(e){ return null; } }
+  function setSess(s){ if(s) localStorage.setItem(SESS_KEY, JSON.stringify(s)); else localStorage.removeItem(SESS_KEY); }
+  function saveSession(d){ if(!d||!d.access_token) return null;
+    const s={access_token:d.access_token, refresh_token:d.refresh_token||'', expira:Date.now()+((d.expires_in||3600)*1000)-60000};
+    setSess(s); return s; }
+  async function authToken(){
+    const s=getSess(); if(!s) return null;
+    if(Date.now()<(s.expira||0)) return s.access_token;
+    try{
+      const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+      const d=await r.json();
+      if(r.ok&&d.access_token){ const ns=saveSession(d); return ns?ns.access_token:null; }
+    }catch(e){}
+    return null;
+  }
+
+  // ── Ingreso con huella (WebAuthn, opcional, por dispositivo) ──
+  const b64 = {
+    enc:b=>btoa(String.fromCharCode.apply(null,new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+    dec:s=>{ s=s.replace(/-/g,'+').replace(/_/g,'/'); const bin=atob(s); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u.buffer; }
+  };
+  async function bioDisponible(){ try{ return !!window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }catch(e){ return false; } }
+  function bioActiva(){ return !!localStorage.getItem(BIO_KEY); }
+  async function bioRegistrar(){
+    try{
+      const ch=crypto.getRandomValues(new Uint8Array(32)), uid=crypto.getRandomValues(new Uint8Array(16));
+      const cred=await navigator.credentials.create({publicKey:{
+        challenge:ch, rp:{name:'Apps CyC', id:location.hostname},
+        user:{id:uid, name:'admin', displayName:'Admin'},
+        pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+        authenticatorSelection:{authenticatorAttachment:'platform', userVerification:'required'},
+        timeout:60000, attestation:'none'
+      }});
+      if(cred){ localStorage.setItem(BIO_KEY, b64.enc(cred.rawId)); return true; }
+    }catch(e){ console.warn('bio reg', e); }
+    return false;
+  }
+  async function bioVerificar(){
+    try{
+      const id=localStorage.getItem(BIO_KEY); if(!id) return false;
+      const ch=crypto.getRandomValues(new Uint8Array(32));
+      const a=await navigator.credentials.get({publicKey:{
+        challenge:ch, timeout:60000, userVerification:'required',
+        allowCredentials:[{type:'public-key', id:b64.dec(id)}], rpId:location.hostname
+      }});
+      return !!a;
+    }catch(e){ console.warn('bio ver', e); return false; }
+  }
 
   const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const $ = id => document.getElementById(id);
@@ -299,7 +352,17 @@ const Vitrina = (() => {
   }
   function _closeShare(){ const o=$('shareov'); if(o) o.classList.remove('open'); }
 
-  function openLogin(){ if(token){ openAdmin(); return; } $('lg-err').textContent=''; $('login').classList.add('open'); }
+  async function openLogin(){
+    const s=getSess();
+    if(s && bioActiva()){
+      const ok=await bioVerificar();
+      if(ok){ openAdmin(); return; }
+      $('lg-err').textContent='No se reconoció la huella. Podés entrar con tu clave.';
+      $('login').classList.add('open'); return;
+    }
+    if(s){ openAdmin(); return; }
+    $('lg-err').textContent=''; $('login').classList.add('open');
+  }
   function closeLogin(){ $('login').classList.remove('open'); }
   async function doLogin(){
     const email=$('lg-email').value.trim(), pass=$('lg-pass').value;
@@ -310,24 +373,35 @@ const Vitrina = (() => {
       });
       const d = await r.json();
       if(!r.ok || !d.access_token){ $('lg-err').textContent='Email o contraseña incorrectos.'; $('lg-btn').disabled=false; return; }
-      token = d.access_token; localStorage.setItem(TOK_KEY, token);
-      closeLogin(); await openAdmin();
+      saveSession(d);
+      closeLogin();
+      // Ofrecer activar la huella en este dispositivo (solo la 1ª vez)
+      if(!bioActiva() && await bioDisponible()){
+        if(confirm('¿Activar ingreso con huella en este dispositivo? Así la próxima vez entrás con tu huella, sin escribir la clave.')){
+          const ok = await bioRegistrar();
+          if(ok) alert('✅ Listo. La próxima vez te va a pedir la huella.');
+        }
+      }
+      await openAdmin();
     }catch(e){ $('lg-err').textContent='Error de conexión.'; }
     $('lg-btn').disabled=false;
   }
 
   async function openAdmin(){
+    const tok = await authToken();
+    if(!tok){ setSess(null); $('login').classList.add('open'); return; }
     try{
       const r = await fetch(`${SB_URL}/rest/v1/vitrina_data?id=eq.1&select=datos`,{
-        headers:{apikey:SB_KEY, Authorization:'Bearer '+token}
+        headers:{apikey:SB_KEY, Authorization:'Bearer '+tok}
       });
-      if(r.status===401||r.status===403){ token=''; localStorage.removeItem(TOK_KEY); alert('Tu sesión venció o no sos admin. Entrá de nuevo.'); return; }
+      if(r.status===401||r.status===403){ setSess(null); alert('Tu sesión venció o no sos admin. Entrá de nuevo.'); $('login').classList.add('open'); return; }
       const rows = r.ok ? await r.json() : [];
       if(rows&&rows[0]&&rows[0].datos&&rows[0].datos.apps){ data = rows[0].datos; }
     }catch(e){}
     renderAdmin(); $('admin').classList.add('open');
   }
   function closeAdmin(){ $('admin').classList.remove('open'); }
+  function logout(){ setSess(null); localStorage.removeItem(BIO_KEY); closeAdmin(); alert('Sesión cerrada. La próxima vez te va a pedir la clave de nuevo.'); }
 
   function renderAdmin(){
     $('ad-titulo').value = data.titulo||'';
@@ -402,10 +476,12 @@ const Vitrina = (() => {
     data.titulo=$('ad-titulo').value.trim();
     data.contacto={ email:$('ad-email').value.trim(), whatsapp:$('ad-wa').value.trim() };
     $('ad-msg').textContent='Guardando...';
+    const tok = await authToken();
+    if(!tok){ $('ad-msg').textContent='Sesión vencida — entrá de nuevo.'; setSess(null); return; }
     try{
       const r = await fetch(`${SB_URL}/rest/v1/vitrina_data`,{
         method:'POST',
-        headers:{apikey:SB_KEY, Authorization:'Bearer '+token, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates'},
+        headers:{apikey:SB_KEY, Authorization:'Bearer '+tok, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates'},
         body:JSON.stringify({id:1, datos:data, updated_at:new Date().toISOString()})
       });
       if(r.ok){ $('ad-msg').textContent='✅ Guardado'; renderPublic(); setTimeout(()=>$('ad-msg').textContent='',2500); }
@@ -414,7 +490,7 @@ const Vitrina = (() => {
   }
 
   boot();
-  return { openViewer,closeViewer,vnav, share,_closeShare, openLogin,closeLogin,doLogin, openAdmin,closeAdmin,
+  return { openViewer,closeViewer,vnav, share,_closeShare, openLogin,closeLogin,doLogin, openAdmin,closeAdmin,logout,
     setField,setPage,move,delApp,addApp,addPage,delPage,upCover,upPage,save, _apps:[] };
 })();
 </script>
