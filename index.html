@@ -316,8 +316,14 @@ const Vitrina = (() => {
       const d = r.ok ? await r.json() : null;
       if (d && Array.isArray(d.apps) && d.apps.length){
         data = { titulo:d.titulo||SEED.titulo, contacto:d.contacto||SEED.contacto, apps:d.apps };
+        renderPublic(); return;
       }
-    }catch(e){ /* usa SEED */ }
+    }catch(e){}
+    // Si la nube está vacía, cargar el seed con imágenes (vitrina-seed.json)
+    try{
+      const r2 = await fetch('./vitrina-seed.json', {cache:'no-store'});
+      if(r2.ok){ const sd = await r2.json(); if(sd && Array.isArray(sd.apps) && sd.apps.length){ data = sd; } }
+    }catch(e){ /* usa SEED inline */ }
     renderPublic();
   }
 
