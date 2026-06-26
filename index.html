@@ -62,6 +62,17 @@
   .card .body p{color:var(--mut);font-size:.88rem;margin-top:.4rem;line-height:1.5;min-height:2.6em}
   .card .ver{margin-top:.85rem;color:var(--acc);font-weight:700;font-size:.85rem;display:inline-flex;align-items:center;gap:.3rem}
 
+  /* CTA TIENDA PERSONAL */
+  .cta-custom{margin-top:2.5rem;background:linear-gradient(135deg,var(--hero1),var(--hero2));color:#fdf6ee;
+    border-radius:20px;padding:2rem 1.8rem;display:flex;gap:1.5rem;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative;overflow:hidden}
+  .cta-custom::before{content:"";position:absolute;inset:0;opacity:.08;background-image:radial-gradient(circle at 1px 1px,#fff 1px,transparent 0);background-size:20px 20px}
+  .cta-custom>*{position:relative}
+  .cta-txt{flex:1;min-width:260px}
+  .cta-txt h2{font-family:var(--serif);font-size:1.55rem;margin-bottom:.5rem}
+  .cta-txt p{color:#efe2d4;font-size:.95rem;line-height:1.55;max-width:640px}
+  .cta-btn{font-size:.95rem;padding:.85rem 1.4rem;white-space:nowrap;box-shadow:0 8px 22px #0003}
+  @media(max-width:560px){.cta-custom{padding:1.5rem 1.2rem}.cta-txt h2{font-size:1.3rem}}
+
   /* FOOTER */
   footer{margin-top:3rem;text-align:center;color:var(--mut);border-top:1px solid var(--line);padding-top:1.8rem}
   .contact-btns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin:.9rem 0 1.2rem}
@@ -123,12 +134,20 @@
   <section class="hero">
     <span class="pill">Soluciones digitales para tu negocio</span>
     <h1 id="h-titulo">Apps CyC</h1>
-    <p id="h-sub">Mirá todas las aplicaciones que desarrollamos. Tocá cualquiera para ver cómo funciona y qué ve tu cliente.</p>
+    <p id="h-sub">Mirá todo lo que podemos hacer por tu negocio. ¿Tenés un emprendimiento o un local? No lo dudes más: tocá una app, mirá cómo funciona y probala gratis 15 días, sin compromiso.</p>
   </section>
 
   <main>
     <div class="sect"><h2>Nuestras aplicaciones</h2><span class="ln"></span></div>
     <div id="grid" class="grid"></div>
+
+    <section class="cta-custom">
+      <div class="cta-txt">
+        <h2 class="serif">¿No encontrás la que buscás?</h2>
+        <p>Cada negocio es único, y por eso también hacemos apps <strong>a medida</strong>. Contanos qué tenés en mente y te armamos tu propia tienda o sistema, con tu estilo y las funciones que tu emprendimiento necesita. Desde algo simple hasta bien completo: lo diseñamos para vos. No te quedes con las ganas.</p>
+      </div>
+      <button class="btn btn-acc cta-btn" onclick="Vitrina.openDemo('Tienda a medida')">🛠️ Quiero mi Tienda Personal</button>
+    </section>
   </main>
 
   <footer>
@@ -162,9 +181,9 @@
 <!-- FORMULARIO DEMO -->
 <div class="ov" id="demo">
   <div class="modal" id="demo-modal">
-    <h3>🎁 Demo gratis por 15 días</h3>
+    <h3 id="demo-title">🎁 Demo gratis por 15 días</h3>
     <p class="muted" id="demo-app" style="margin:.2rem 0 .2rem;font-weight:700"></p>
-    <p class="muted" style="margin-bottom:.2rem">Dejanos tus datos y te contactamos para activarlo. Sin compromiso.</p>
+    <p class="muted" id="demo-intro" style="margin-bottom:.2rem">Dejanos tus datos y te contactamos para activarlo. Sin compromiso. Y si los 15 días te quedan cortos, avisanos y probás 15 más. 😊</p>
     <label>Nombre</label>
     <input id="dm-nombre" type="text" placeholder="Tu nombre">
     <label>Teléfono / WhatsApp</label>
@@ -252,7 +271,7 @@ const Vitrina = (() => {
   };
 
   let data = JSON.parse(JSON.stringify(SEED));
-  let vIdx = 0, vPages = [], vApp = null;
+  let vIdx = 0, vPages = [], vApp = null, demoApp = '';
 
   // ── Sesión persistente (con refresh) para no re-tipear la clave ──
   function getSess(){ try{ return JSON.parse(localStorage.getItem(SESS_KEY)||'null'); }catch(e){ return null; } }
@@ -357,9 +376,18 @@ const Vitrina = (() => {
   }
 
   // ── Formulario de demo (lead) ───────────────────────────────
-  function openDemo(){
+  function openDemo(name){
+    const custom = (name === 'Tienda a medida');
+    demoApp = name || (vApp && vApp.nombre) || '';
     $('demo-modal').innerHTML = demoFormHTML; // restaurar el formulario por si quedó en "éxito"
-    $('demo-app').textContent = vApp ? ('App: '+vApp.nombre) : '';
+    if(custom){
+      $('demo-title').textContent = '🛠️ Tu Tienda Personal, a medida';
+      $('demo-intro').textContent = 'Contanos qué negocio o emprendimiento tenés y qué necesitás, y te armamos tu propia tienda o sistema, con tu estilo. Dejanos tus datos y lo charlamos. Sin compromiso.';
+      $('demo-app').textContent = '';
+      $('dm-btn').textContent = 'Quiero mi tienda';
+    } else {
+      $('demo-app').textContent = demoApp ? ('Sobre: '+demoApp) : '';
+    }
     $('dm-nombre').value=''; $('dm-tel').value=''; $('dm-email').value=''; $('dm-err').textContent='';
     $('demo').classList.add('open');
   }
@@ -371,13 +399,15 @@ const Vitrina = (() => {
     try{
       await fetch(`${SB_URL}/rest/v1/rpc/vitrina_lead`,{
         method:'POST', headers:{apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json'},
-        body:JSON.stringify({p_nombre:nombre, p_telefono:tel, p_email:email, p_app:(vApp&&vApp.nombre)||''})
+        body:JSON.stringify({p_nombre:nombre, p_telefono:tel, p_email:email, p_app:demoApp||''})
       });
     }catch(e){}
     const wa=(data.contacto&&data.contacto.whatsapp)?data.contacto.whatsapp.replace(/\D/g,''):'';
-    const msg=`Hola! Quiero el demo de 15 días de "${(vApp&&vApp.nombre)||'una app'}". Nombre: ${nombre} · Tel: ${tel} · Mail: ${email}`;
+    const esCustom = (demoApp==='Tienda a medida');
+    const asunto = esCustom ? 'Quiero una Tienda Personal a medida' : `Quiero el demo de 15 días de "${demoApp||'una app'}"`;
+    const msg=`Hola! ${asunto}. Nombre: ${nombre} · Tel: ${tel} · Mail: ${email}`;
     $('demo-modal').innerHTML = `<h3>✅ ¡Listo!</h3>
-      <p class="muted" style="margin:.6rem 0 1rem">Recibimos tu pedido. Te vamos a contactar para activar tu demo de 15 días.</p>
+      <p class="muted" style="margin:.6rem 0 1rem">Recibimos tu pedido. Te vamos a contactar a la brevedad.</p>
       ${wa?`<a class="btn btn-acc" style="display:block;text-align:center;text-decoration:none;margin-bottom:.6rem" target="_blank" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}">📱 Avisar por WhatsApp ahora</a>`:''}
       <div class="row"><button class="btn btn-ghost" onclick="Vitrina.closeDemo()">Cerrar</button></div>`;
     $('dm-btn').disabled=false;
